@@ -8,15 +8,16 @@ import os
 url = 'https://unsplash.com/search/photos/'
 
 links = []
-authors = []
+titles = []
 credits_list = []
 
 #----------------DOWNLOAD FUNCTION--------------
 
-def download(links, keywords,authors):
+
+def download(links, keywords,titles):
 
     # creates a folder in the current directory with name as same as search input
-    folder = os.getcwd() + "\\" + keywords + "\\"
+    folder = os.path.join(os.getcwd(),keywords)
     if not os.path.exists(folder):
 	    os.makedirs(folder)	
     
@@ -25,20 +26,20 @@ def download(links, keywords,authors):
     downloaded = 1 #downloads counter // set to 1 since to be subtracted
     for imgs in links:
         # creates name of photo
-        name = folder + authors[i] + '.jpg'
-
+        img_path = str(i+1) + '- ' + titles[i] + '.jpg'
+        name = os.path.join(folder,img_path)
         #download function using urllib.request
         urllib.request.urlretrieve(imgs, name)
         print('photo ' + str(i+1) + ' downloaded')
         print('no. of photo(s) remaining:' + str(len(links)-downloaded))
         downloaded += 1
         # adds "{authorname} : {link to the photo}" to a list
-        credits_list.append(authors[i] + " : " + imgs.replace('download?force=true','') + '\n')
+        credits_list.append(titles[i] + " : " + imgs.replace('download?force=true','') + '\n')
         
         i += 1
 
     # creates a credit file adding credits_list items to lines.
-    credits = open(folder+'credits.txt','w')
+    credits = open(os.path.join(folder,'credits.txt'),'w')
     credits.writelines(credits_list)
     credits.close()
 
@@ -71,11 +72,10 @@ def scraper(url,keywords):
     author_list = soup.find_all('a', {'itemprop': 'contentUrl'}, limit = quantity)
     for i in range(0,len(author_list)):
         author_name = author_list[i].get('title')
-        authors.append(author_name.replace('View the photo by ',''))
+        titles.append(author_name.replace('View the photo by ',''))
 
 
-
-    download(links,keywords,authors)
+    download(links,keywords,titles)
 
 
 #-----------SEARCH FUNCTION------------
